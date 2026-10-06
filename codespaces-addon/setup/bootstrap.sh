@@ -5,12 +5,16 @@ set -e
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 echo "== 1/6 Installing Terraform 1.3.9 =="
-if ! command -v tfenv >/dev/null 2>&1; then
+if terraform version 2>/dev/null | grep -q "v1.3.9"; then
+  echo "Terraform 1.3.9 already installed"
+elif ! command -v tfenv >/dev/null 2>&1; then
   [ -d "$HOME/.tfenv" ] || git clone --depth 1 https://github.com/tfutils/tfenv.git "$HOME/.tfenv"
   export PATH="$HOME/.tfenv/bin:$PATH"
 fi
-tfenv install 1.3.9
-tfenv use 1.3.9
+if ! terraform version 2>/dev/null | grep -q "v1.3.9"; then
+  tfenv install 1.3.9
+  tfenv use 1.3.9
+fi
 
 echo "== 2/6 Checking AWS credentials =="
 if ! aws sts get-caller-identity >/dev/null 2>&1; then
